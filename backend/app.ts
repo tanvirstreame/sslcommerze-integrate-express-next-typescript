@@ -1,7 +1,6 @@
 
 import express, { Application, Request, Response } from "express";
-const SSLCommerzPayment = require("sslcommerz").SslCommerzPayment;
-//const SSLCommerzPayment = require("../ssl");
+const SSLCommerzPayment = require('sslcommerz').SslCommerzPayment
 const bodyParser = require('body-parser')
 const cors = require('cors');
 const app: Application = express()
@@ -16,7 +15,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
 
 
-app.get('/', async (request, response: Response) => {
+app.get('/', async (request: Request, response: Response) => {
 
   /** 
   * Root url response 
@@ -33,16 +32,16 @@ app.post('/ssl-request', async (request: Request, response: Response) => {
   /** 
   * Create ssl session request 
   */
- 
+
   const data = {
     total_amount: request.body.price,
     currency: 'BDT',
     tran_id: 'REF123', // Make it unique, it is dummy
-    success_url: `${process.env.CLIENT_ROOT}/paymentSuccessful`,
-    fail_url: `${process.env.CLIENT_ROOT}/paymentFailure`,
-    cancel_url: `${process.env.CLIENT_ROOT}/paymentFailure`,
+    success_url: `${process.env.ROOT}/ssl-payment-success`,
+    fail_url: `${process.env.ROOT}/ssl-payment-fail`,
+    cancel_url: `${process.env.ROOT}/ssl-payment-cancel`,
     shipping_method: 'No',
-    product_name:  request.body.name,
+    product_name: request.body.name,
     product_category: 'Electronic',
     product_profile: 'general',
     cus_name: 'Customer Name',
@@ -101,12 +100,9 @@ app.post("/ssl-payment-success", async (request: Request, response: Response) =>
   * If payment successful 
   */
 
-  return response.status(200).json(
-    {
-      data: request.body,
-      message: 'Payment success'
-    }
-  );
+  console.log("success response", request.body);
+  return response.redirect(`${process.env.CLIENT_ROOT}/paymentSuccessful`);
+
 })
 
 app.post("/ssl-payment-fail", async (request: Request, response: Response) => {
@@ -115,12 +111,8 @@ app.post("/ssl-payment-fail", async (request: Request, response: Response) => {
   * If payment failed 
   */
 
-  return response.status(200).json(
-    {
-      data: request.body,
-      message: 'Payment failed'
-    }
-  );
+  console.log("fail response", request.body);
+  return response.redirect(`${process.env.CLIENT_ROOT}/paymentFailure`);
 })
 
 app.post("/ssl-payment-cancel", async (request: Request, response: Response) => {
@@ -129,12 +121,8 @@ app.post("/ssl-payment-cancel", async (request: Request, response: Response) => 
   * If payment cancelled 
   */
 
-  return response.status(200).json(
-    {
-      data: request.body,
-      message: 'Payment cancelled'
-    }
-  );
+  console.log("cancel response", request.body);
+  return response.redirect(`${process.env.CLIENT_ROOT}/paymentFailure`);
 })
 
 app.listen(process.env.PORT, () =>
